@@ -1,0 +1,31 @@
+{
+  "name": "process_excel",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite --force",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "element-plus": "^1.1.0-beta.18",
+    "iconv-lite": "^0.6.3",
+    "jszip": "^3.7.1",
+    "sass": "^1.42.1",
+    "vue": "^3.2.16",
+    "vue-router": "4",
+    "xlsx": "^0.17.2"
+  },
+  "devDependencies": {
+    "@types/iconv-lite": "^0.0.1",
+    "@types/xlsx": "^0.0.36",
+    "@vitejs/plugin-vue": "^1.9.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-polyfill-node": "^0.7.0",
+    "typescript": "^4.4.3",
+    "vite": "^2.6.0",
+    "vue-tsc": "^0.3.0"
+  }
+}
