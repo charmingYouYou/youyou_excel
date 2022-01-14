@@ -50,7 +50,7 @@ const IdXlsxToJSON = async data => {
   })
 }
 
-const areaId2021Excel = async fileList => {
+const areaId2021Excel = async (fileList, extra) => {
   const ld20List = {
     keys: [],
     info: [],
@@ -61,8 +61,8 @@ const areaId2021Excel = async fileList => {
     info: [],
     title: 'dt2021'
   }
-  common2021Excel(fileList, ld20List, 0)
-  common2021Excel(fileList, ld21List, 1)
+  common2021Excel(fileList, ld20List, 0, extra)
+  common2021Excel(fileList, ld21List, 1, extra)
   self.postMessage({
     key: 'areaId2021Excel',
     type: 'data',
@@ -73,12 +73,15 @@ const areaId2021Excel = async fileList => {
   })
 }
 
-const common2021Excel = (fileList, resultInfo, index) => {
+const common2021Excel = (fileList, resultInfo, index, extra) => {
   const ldKeys = [
     ['ld20', 'ld21'],
     ['ld2020', 'ld2021'],
     ['f2020', 'f2021'],
   ]
+  if (extra.keys) {
+    ldKeys.push(extra.keys.split(','))
+  }
   fileList.forEach(({ buffer, fileId }) => {
     // 每个文件
     const workbook = self.XLSX.read(buffer, {
@@ -154,11 +157,11 @@ const findAreaKey = data => {
 self.addEventListener(
   'message',
   function (e) {
-    const { key, data } = e.data
+    const { key, data, extra } = e.data
     if (key === 'id_excel') {
       IdXlsxToJSON(data)
     } else if (key === 'areaId2021Excel') {
-      areaId2021Excel(data)
+      areaId2021Excel(data, extra)
     }
     // self.postMessage('You said: ' + e.data);
   },

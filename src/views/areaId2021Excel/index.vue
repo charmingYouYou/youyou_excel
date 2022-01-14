@@ -15,6 +15,11 @@
         <div class="el-upload__tip">只能上传{{ acceptArr.join(',') }}文件</div>
       </template>
     </el-upload>
+    <el-form ref="formRef" :model="from">
+      <el-form-item label="额外表头名称">
+        <el-input v-model="from.keys" placeholder="如: ld20,ld21"></el-input>
+      </el-form-item>
+    </el-form>
     <p style="color: red">
       {{ progress }}
     </p>
@@ -57,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from '@vue/runtime-core'
+import { onMounted, ref, reactive } from '@vue/runtime-core'
 import JSZip from 'jszip'
 import XLSX from 'xlsx'
 import iconv from 'iconv-lite'
@@ -66,9 +71,11 @@ import { ElMessage } from 'element-plus'
 
 const acceptArr = ['application/zip', 'application/x-zip-compressed']
 const tableResult = ref<any[]>([])
-const LD2020List = ref<string[]>([])
 let zipName = ''
 const progress = ref('当前处理进度: 0/0')
+const from = reactive({
+  keys: '',
+})
 
 const addFile = () => {
   console.log(123)
@@ -131,6 +138,9 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
     key: 'areaId2021Excel',
     type: 'data',
     data: bufferList,
+    extra: {
+      ...from,
+    },
   })
   worker.addEventListener('message', e => {
     const { key, type, data } = e.data
@@ -160,6 +170,14 @@ onMounted(() => {})
 <style lang="scss" scoped>
 .el-main * {
   margin: 20px;
+}
+
+.el-form * {
+  margin: 0;
+
+  .el-input {
+    width: 50%;
+  }
 }
 
 .table-header {
