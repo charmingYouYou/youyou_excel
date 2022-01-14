@@ -50,7 +50,7 @@ const IdXlsxToJSON = async data => {
   })
 }
 
-const areaId2021Excel = async data => {
+const areaId2021Excel = async fileList => {
   const ld20List = {
     keys: [],
     info: [],
@@ -61,52 +61,8 @@ const areaId2021Excel = async data => {
     info: [],
     title: 'dt2021'
   }
-  const ldKeys = [
-    ['ld20', 'ld21'],
-    ['ld2020', 'ld2021'],
-  ]
-  data.forEach(({ buffer, fileId }) => {
-    // 每个文件
-    const workbook = self.XLSX.read(buffer, {
-      type: 'buffer',
-    })
-    const obj20 = {
-      fileId,
-    }
-    const obj21 = {
-      fileId,
-    }
-    workbook.SheetNames.forEach(sheetName => {
-      const res = self.XLSX.utils.sheet_to_row_object_array(
-        workbook.Sheets[sheetName]
-      )
-      console.log(`xlsx to JSON:`, fileId, res.length)
-      if (res.length > 0) {
-        res.forEach(item => {
-          const curKey = ldKeys.find(keys => {
-            return Object.keys(item).some(k => keys.includes(k.toLowerCase()))
-          })
-          if (curKey) {
-            formatLdInfo(item, curKey[0], ld20List, obj20, fileId)
-            formatLdInfo(item, curKey[1], ld21List, obj21, fileId)
-          }
-        })
-      }
-      ld20List.info.push(obj20)
-      ld21List.info.push(obj21)
-      self.postMessage({
-        key: 'areaId2021Excel',
-        type: 'message',
-        data: `当前处理进度: ${ld21List.info.length}/${data.length}`,
-      })
-      console.log(`当前处理进度: ${ld21List.info.length}/${data.length}`)
-    })
-  })
-  ld20List.keys = ld20List.keys.sort((a, b) => a - b)
-  ld21List.keys = ld21List.keys.sort((a, b) => a - b)
-  ld20List.info = ld20List.info.sort((a, b) => a.fileId - b.fileId)
-  ld21List.info = ld21List.info.sort((a, b) => a.fileId - b.fileId)
-  console.log(`当前处理结果: `, ld20List, ld21List)
+  common2021Excel(fileList, ld20List, 0)
+  common2021Excel(fileList, ld21List, 1)
   self.postMessage({
     key: 'areaId2021Excel',
     type: 'data',
@@ -117,11 +73,49 @@ const areaId2021Excel = async data => {
   })
 }
 
+const common2021Excel = (fileList, resultInfo, index) => {
+  const ldKeys = [
+    ['ld20', 'ld21'],
+    ['ld2020', 'ld2021'],
+    ['f2020', 'f2021'],
+  ]
+  fileList.forEach(({ buffer, fileId }) => {
+    // 每个文件
+    const workbook = self.XLSX.read(buffer, {
+      type: 'buffer',
+    })
+    const obj = {
+      fileId,
+    }
+    workbook.SheetNames.forEach(sheetName => {
+      const res = self.XLSX.utils.sheet_to_row_object_array(
+        workbook.Sheets[sheetName]
+      )
+      console.log(`xlsx to JSON:`, fileId, res.length)
+      if (res.length > 0) {
+        res.forEach(item => {
+          const curKey = ldKeys.find(keys => Object.keys(item).some(k => keys.includes(k.toLowerCase())))
+          curKey && formatLdInfo(item, curKey[index], resultInfo, obj, fileId)
+        })
+      }
+      resultInfo.info.push(obj)
+      const progress = Math.floor((((index * 0.5) + ((resultInfo.info.length / fileList.length) * 0.5))) * 100)
+      self.postMessage({
+        key: 'areaId2021Excel',
+        type: 'message',
+        data: `当前处理进度: ${progress}%`,
+      })
+      console.log(`当前处理进度: ${progress}%`)
+    })
+  })
+  resultInfo.keys = resultInfo.keys.sort((a, b) => a - b)
+  resultInfo.info = resultInfo.info.sort((a, b) => a.fileId - b.fileId)
+  return resultInfo
+}
+
 const formatLdInfo = (data, sheetKey, container, obj, fileId) => {
-  let ldKey = data[sheetKey]
-  if (String(ldKey).length === 6) {
-    ldKey = String(ldKey).substring(0, 3).replace('0', '')
-  }
+  let ldKey = data[sheetKey] || data[sheetKey.toUpperCase()]
+  ldKey = String(ldKey).length === 6 ? String(ldKey).substring(0, 3).replace(/^0+/, '').replace(/0+$/, '') : Math.floor(Number(ldKey))
   if (ldKey) {
     if (!container.keys.includes(ldKey)) {
       container.keys.push(ldKey)
@@ -141,9 +135,20 @@ const formatLdInfo = (data, sheetKey, container, obj, fileId) => {
 }
 
 const findAreaKey = data => {
-  return Object.keys(data).find(key => {
-    return key.toLowerCase().includes('area')
+  let areaKey = ''
+  areaKey = Object.keys(data).find(key => {
+    return key.toLowerCase() === 'area'
   })
+  if (!areaKey) {
+    areaKey = Object.keys(data).find(key => {
+      return key.toLowerCase().includes('area')
+    })
+  }
+  if (areaKey) {
+    return areaKey
+  } else {
+    throw Error('找不到areaKey')
+  }
 }
 
 self.addEventListener(
