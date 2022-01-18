@@ -50,14 +50,15 @@ const IdXlsxToJSON = async data => {
   })
 }
 
+const defaultKeys = [21, 22, 23, 24, 31, 32, 33, 41, 42, 43, 44, 45, 46, 47, 51, 52, 53, 61, 62, 63, 64, 65, 66, 67, 111, 112, 113, 114, 121, 122, 123, 124]
 const areaId2021Excel = async (fileList, extra) => {
   const ld20List = {
-    keys: [],
+    keys: defaultKeys,
     info: [],
     title: 'dt2020'
   }
   const ld21List = {
-    keys: [],
+    keys: defaultKeys,
     info: [],
     title: 'dt2021'
   }
@@ -111,7 +112,6 @@ const common2021Excel = (fileList, resultInfo, index, extra) => {
       console.log(`当前处理进度: ${progress}%`)
     })
   })
-  resultInfo.keys = resultInfo.keys.sort((a, b) => a - b)
   resultInfo.info = resultInfo.info.sort((a, b) => a.fileId - b.fileId)
   return resultInfo
 }
