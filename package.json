@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vite --force",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "upload": "scp -r dist/* root@49.233.201.183:/www/wwwroot/nazi.charmingyouyou.cn"
   },
   "dependencies": {
     "buffer": "^6.0.3",

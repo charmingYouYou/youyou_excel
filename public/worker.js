@@ -50,17 +50,20 @@ const IdXlsxToJSON = async data => {
   })
 }
 
-const defaultKeys = [21, 22, 23, 24, 31, 32, 33, 41, 42, 43, 44, 45, 46, 47, 51, 52, 53, 61, 62, 63, 64, 65, 66, 67, 111, 112, 113, 114, 121, 122, 123, 124]
+const defaultKeys = [
+  21, 22, 23, 24, 31, 32, 33, 41, 42, 43, 44, 45, 46, 47, 51, 52, 53, 61, 62,
+  63, 64, 65, 66, 67, 111, 112, 113, 114, 121, 122, 123, 124,
+]
 const areaId2021Excel = async (fileList, extra) => {
   const ld20List = {
     keys: defaultKeys,
     info: [],
-    title: 'dt2020'
+    title: 'dt2020',
   }
   const ld21List = {
     keys: defaultKeys,
     info: [],
-    title: 'dt2021'
+    title: 'dt2021',
   }
   common2021Excel(fileList, ld20List, 0, extra)
   common2021Excel(fileList, ld21List, 1, extra)
@@ -95,15 +98,20 @@ const common2021Excel = (fileList, resultInfo, index, extra) => {
       const res = self.XLSX.utils.sheet_to_row_object_array(
         workbook.Sheets[sheetName]
       )
-      console.log(`xlsx to JSON:`, fileId, res.length)
+      console.log(`xlsx to JSON:`, fileId, res.length, JSON.stringify(ldKeys))
       if (res.length > 0) {
         res.forEach(item => {
-          const curKey = ldKeys.find(keys => Object.keys(item).some(k => keys.includes(k.toLowerCase())))
+          const curKey = ldKeys.find(keys =>
+            Object.keys(item).some(k => keys.includes(k.toLowerCase()))
+          )
+          console.log(curKey)
           curKey && formatLdInfo(item, curKey[index], resultInfo, obj, fileId)
         })
       }
       resultInfo.info.push(obj)
-      const progress = Math.floor((((index * 0.5) + ((resultInfo.info.length / fileList.length) * 0.5))) * 100)
+      const progress = Math.floor(
+        (index * 0.5 + (resultInfo.info.length / fileList.length) * 0.5) * 100
+      )
       self.postMessage({
         key: 'areaId2021Excel',
         type: 'message',
@@ -117,8 +125,18 @@ const common2021Excel = (fileList, resultInfo, index, extra) => {
 }
 
 const formatLdInfo = (data, sheetKey, container, obj, fileId) => {
-  let ldKey = data[sheetKey] || data[sheetKey.toUpperCase()]
-  ldKey = String(ldKey).length === 6 ? String(ldKey).substring(0, 3).replace(/^0+/, '').replace(/0+$/, '') : Math.floor(Number(ldKey))
+  let ldKey =
+    data[sheetKey] ||
+    data[sheetKey.toUpperCase()] ||
+    data[
+      sheetKey.replace(/^\S/, function (s) {
+        return s.toUpperCase()
+      })
+    ]
+  ldKey =
+    String(ldKey).length === 6
+      ? String(ldKey).substring(0, 3).replace(/^0+/, '').replace(/0+$/, '')
+      : Math.floor(Number(ldKey))
   if (ldKey) {
     if (!container.keys.includes(ldKey)) {
       container.keys.push(ldKey)
