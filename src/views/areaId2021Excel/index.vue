@@ -84,6 +84,7 @@ const addFile = () => {
 const uploadSuccess = (file: File) => {
   console.log(file)
   if (acceptArr.includes(file.type)) {
+    tableResult.value = []
     zipName = getFileName(file.name)
     const fileReader = new FileReader()
     fileReader.readAsArrayBuffer(file)

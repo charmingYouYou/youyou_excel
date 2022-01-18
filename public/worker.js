@@ -98,13 +98,12 @@ const common2021Excel = (fileList, resultInfo, index, extra) => {
       const res = self.XLSX.utils.sheet_to_row_object_array(
         workbook.Sheets[sheetName]
       )
-      console.log(`xlsx to JSON:`, fileId, res.length, JSON.stringify(ldKeys))
+      console.log(`xlsx to JSON:`, fileId, res.length)
       if (res.length > 0) {
         res.forEach(item => {
           const curKey = ldKeys.find(keys =>
             Object.keys(item).some(k => keys.includes(k.toLowerCase()))
           )
-          console.log(curKey)
           curKey && formatLdInfo(item, curKey[index], resultInfo, obj, fileId)
         })
       }
