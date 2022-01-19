@@ -17,7 +17,7 @@
     </el-upload>
     <el-form ref="formRef" :model="from">
       <el-form-item label="额外表头名称">
-        <el-input v-model="from.keys" placeholder="如: ld20,ld21"></el-input>
+        <el-input v-model="from.keys" placeholder="如: ld21"></el-input>
       </el-form-item>
     </el-form>
     <p style="color: red">
@@ -43,7 +43,7 @@
             {{ scope.row.error ? '失败' : '成功' }}
           </template>
         </el-table-column>
-        <el-table-column prop="fileId" label="地区ID" align="center">
+        <el-table-column prop="pac" label="地区ID" align="center">
         </el-table-column>
         <el-table-column
           v-for="(item, index) in table.keys"
@@ -136,7 +136,7 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
   )
   const worker = new Worker('/worker.js')
   worker.postMessage({
-    key: 'areaId2021Excel',
+    key: 'ld21ExcelInside',
     type: 'data',
     data: bufferList,
     extra: {
@@ -145,11 +145,11 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
   })
   worker.addEventListener('message', e => {
     const { key, type, data } = e.data
-    if (key === 'areaId2021Excel') {
+    if (key === 'ld21ExcelInside') {
       if (type === 'message') {
         progress.value = data
       } else if (type === 'data') {
-        tableResult.value = [data.ld20List, data.ld21List]
+        tableResult.value = [data.ld21List]
         console.log(data, '----------')
         worker.terminate()
       }
@@ -162,7 +162,7 @@ const clickDownloadSheet = (className: string) => {
   const table = document.querySelector(`.${className}`)
   const worksheet = XLSX.utils.table_to_sheet(table)
   XLSX.utils.book_append_sheet(workbook, worksheet, zipName)
-  XLSX.writeFile(workbook, `${zipName}-${className}.xlsx`)
+  XLSX.writeFile(workbook, `${zipName}.xlsx`)
 }
 
 onMounted(() => {})

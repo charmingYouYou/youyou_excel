@@ -17,11 +17,18 @@ const routes = [
         component: () => import('@/views/ld2020Excel/index.vue'),
       },
       {
-        path: 'areaId2021Excel',
+        path: 'ld2021Excel',
         meta: {
-          name: '地区ID2021 Excel处理',
+          name: 'LD20/21Excel处理',
         },
-        component: () => import('@/views/areaId2021Excel/index.vue'),
+        component: () => import('@/views/ld2021Excel/index.vue'),
+      },
+      {
+        path: 'ld21Excel-inside',
+        meta: {
+          name: 'LD21Excel处理-内置地区ID',
+        },
+        component: () => import('@/views/ld21ExcelInside/index.vue'),
       },
     ],
   },

@@ -15,37 +15,54 @@
         <div class="el-upload__tip">只能上传{{ acceptArr.join(',') }}文件</div>
       </template>
     </el-upload>
+    <el-form ref="formRef" :model="from">
+      <el-form-item label="额外表头名称">
+        <el-input v-model="from.keys" placeholder="如: ld20,ld21"></el-input>
+      </el-form-item>
+    </el-form>
     <p style="color: red">
-      压缩包共计{{ tableResult.length }}个文件, {{ progress }}
+      {{ progress }}
     </p>
-    <el-button type="primary" style="width: 100px" @click="clickDownloadSheet">
-      下载表格
-    </el-button>
-    <el-table :data="tableResult" border max-height="800">
-      <el-table-column type="index"></el-table-column>
-      <el-table-column prop="error" label="状态" align="center">
-        <template #default="scope">
-          {{ scope.row.error ? '失败' : '成功' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="fileId" label="fileId" align="center">
-      </el-table-column>
-      <el-table-column
-        v-for="(item, index) in LD2020List"
-        :key="`ld2020_${index}`"
-        :prop="item"
-        :label="item"
-        align="center"
-      >
-      </el-table-column>
-      <!-- <el-table-column prop="areaSum" label="区域area和" align="center">
-      </el-table-column> -->
-    </el-table>
+
+    <template v-for="table in tableResult">
+      <header class="table-header">
+        <h1>{{ table.title }}表格数据</h1>
+        <el-button
+          type="primary"
+          style="width: 100px"
+          @click="clickDownloadSheet(table.title)"
+        >
+          下载表格
+        </el-button>
+      </header>
+
+      <el-table :data="table.info" border max-height="800" :class="table.title">
+        <el-table-column type="index"></el-table-column>
+        <el-table-column prop="error" label="状态" align="center">
+          <template #default="scope">
+            {{ scope.row.error ? '失败' : '成功' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="fileId" label="地区ID" align="center">
+        </el-table-column>
+        <el-table-column
+          v-for="(item, index) in table.keys"
+          :key="`ld2020_${index}`"
+          :prop="String(item)"
+          :label="String(item)"
+          align="center"
+        >
+          <template #default="scope">
+            {{ Number(scope.row[item] || 0).toFixed(3) }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from '@vue/runtime-core'
+import { onMounted, ref, reactive } from '@vue/runtime-core'
 import JSZip from 'jszip'
 import XLSX from 'xlsx'
 import iconv from 'iconv-lite'
@@ -54,9 +71,11 @@ import { ElMessage } from 'element-plus'
 
 const acceptArr = ['application/zip', 'application/x-zip-compressed']
 const tableResult = ref<any[]>([])
-const LD2020List = ref<string[]>([])
 let zipName = ''
 const progress = ref('当前处理进度: 0/0')
+const from = reactive({
+  keys: '',
+})
 
 const addFile = () => {
   console.log(123)
@@ -65,6 +84,7 @@ const addFile = () => {
 const uploadSuccess = (file: File) => {
   console.log(file)
   if (acceptArr.includes(file.type)) {
+    tableResult.value = []
     zipName = getFileName(file.name)
     const fileReader = new FileReader()
     fileReader.readAsArrayBuffer(file)
@@ -88,7 +108,12 @@ const unZipFile = async (blob: Blob) => {
       },
     })
     const fileList = Object.values(res.files).filter(
-      value => !(value.name.includes('__MACOSX') || value.dir)
+      value =>
+        !(
+          value.name.includes('__MACOSX') ||
+          value.dir ||
+          value.name.includes('.xml')
+        )
     )
     fileProcess(fileList)
   } catch (error) {
@@ -99,8 +124,8 @@ const unZipFile = async (blob: Blob) => {
 const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
   const bufferList = await Promise.all(
     fileList.map(async value => {
-      console.log(`解压文件:`, value)
-      const fileId = getFileName(value.name).replace('ld', '')
+      const fileId = getFileName(value.name).replace('dt', '')
+      console.log(`解压文件:`, value, fileId)
       let buffer = null
       if ('async' in value) {
         // 解压文件转为buffer
@@ -111,20 +136,20 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
   )
   const worker = new Worker('/worker.js')
   worker.postMessage({
-    key: 'ld2020Excel',
+    key: 'ld2021Excel',
     type: 'data',
     data: bufferList,
+    extra: {
+      ...from,
+    },
   })
   worker.addEventListener('message', e => {
     const { key, type, data } = e.data
-    if (key === 'ld2020Excel') {
+    if (key === 'ld2021Excel') {
       if (type === 'message') {
         progress.value = data
       } else if (type === 'data') {
-        LD2020List.value = data.LD2020List.sort((a: string, b: string) => {
-          return Number(a) - Number(b)
-        })
-        tableResult.value = data.areaJSON
+        tableResult.value = [data.ld20List, data.ld21List]
         console.log(data, '----------')
         worker.terminate()
       }
@@ -132,12 +157,12 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
   })
 }
 
-const clickDownloadSheet = () => {
+const clickDownloadSheet = (className: string) => {
   const workbook = XLSX.utils.book_new()
-  const table = document.querySelector('.el-table')
+  const table = document.querySelector(`.${className}`)
   const worksheet = XLSX.utils.table_to_sheet(table)
   XLSX.utils.book_append_sheet(workbook, worksheet, zipName)
-  XLSX.writeFile(workbook, `${zipName}.xlsx`)
+  XLSX.writeFile(workbook, `${zipName}-${className}.xlsx`)
 }
 
 onMounted(() => {})
@@ -146,5 +171,19 @@ onMounted(() => {})
 <style lang="scss" scoped>
 .el-main * {
   margin: 20px;
+}
+
+.el-form * {
+  margin: 0;
+
+  .el-input {
+    width: 50%;
+  }
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  margin: 0;
 }
 </style>
