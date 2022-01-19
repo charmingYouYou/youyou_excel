@@ -36,7 +36,7 @@
         </el-button>
       </header>
 
-      <el-table :data="table.info" border max-height="800" :class="table.title">
+      <el-table :data="table.info" border max-height="800" :class="`table${table.title}`">
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="error" label="状态" align="center">
           <template #default="scope">
@@ -76,6 +76,7 @@ const progress = ref('当前处理进度: 0/0')
 const from = reactive({
   keys: '',
 })
+const downloadFileHeader = ref('')
 
 const addFile = () => {
   console.log(123)
@@ -124,7 +125,10 @@ const unZipFile = async (blob: Blob) => {
 const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
   const bufferList = await Promise.all(
     fileList.map(async value => {
-      const fileId = getFileName(value.name).replace('dt', '')
+      const fileId = getFileName(value.name).substring(2)
+      downloadFileHeader.value = getFileName(value.name)
+        .substring(0, 2)
+        .toLowerCase()
       console.log(`解压文件:`, value, fileId)
       let buffer = null
       if ('async' in value) {
@@ -159,10 +163,10 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
 
 const clickDownloadSheet = (className: string) => {
   const workbook = XLSX.utils.book_new()
-  const table = document.querySelector(`.${className}`)
+  const table = document.querySelector(`.table${className}`)
   const worksheet = XLSX.utils.table_to_sheet(table)
   XLSX.utils.book_append_sheet(workbook, worksheet, zipName)
-  XLSX.writeFile(workbook, `${zipName}-${className}.xlsx`)
+  XLSX.writeFile(workbook, `${zipName}-${downloadFileHeader.value}${className}.xlsx`)
 }
 
 onMounted(() => {})

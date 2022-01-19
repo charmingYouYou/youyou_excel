@@ -8,12 +8,12 @@ class Ld2021Excel {
     const ld20List = {
       keys: this.defaultKeys,
       info: [],
-      title: 'dt2020',
+      title: '2020',
     }
     const ld21List = {
       keys: this.defaultKeys,
       info: [],
-      title: 'dt2021',
+      title: '2021',
     }
     this.common2021Excel(fileList, ld20List, 0, extra)
     this.common2021Excel(fileList, ld21List, 1, extra)
