@@ -109,11 +109,9 @@ const unZipFile = async (blob: Blob) => {
     })
     const fileList = Object.values(res.files).filter(
       value =>
-        !(
-          value.name.includes('__MACOSX') ||
-          value.dir ||
-          value.name.includes('.xml')
-        )
+        value.name.endsWith('.dbf') &&
+        !value.dir &&
+        !value.name.includes('__MACOSX')
     )
     fileProcess(fileList)
   } catch (error) {

@@ -36,7 +36,12 @@
         </el-button>
       </header>
 
-      <el-table :data="table.info" border max-height="800" :class="`table${table.title}`">
+      <el-table
+        :data="table.info"
+        border
+        max-height="800"
+        :class="`table${table.title}`"
+      >
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="error" label="状态" align="center">
           <template #default="scope">
@@ -110,11 +115,9 @@ const unZipFile = async (blob: Blob) => {
     })
     const fileList = Object.values(res.files).filter(
       value =>
-        !(
-          value.name.includes('__MACOSX') ||
-          value.dir ||
-          value.name.includes('.xml')
-        )
+        value.name.endsWith('.dbf') &&
+        !value.dir &&
+        !value.name.includes('__MACOSX')
     )
     fileProcess(fileList)
   } catch (error) {
@@ -166,7 +169,10 @@ const clickDownloadSheet = (className: string) => {
   const table = document.querySelector(`.table${className}`)
   const worksheet = XLSX.utils.table_to_sheet(table)
   XLSX.utils.book_append_sheet(workbook, worksheet, zipName)
-  XLSX.writeFile(workbook, `${zipName}-${downloadFileHeader.value}${className}.xlsx`)
+  XLSX.writeFile(
+    workbook,
+    `${zipName}-${downloadFileHeader.value}${className}.xlsx`
+  )
 }
 
 onMounted(() => {})
