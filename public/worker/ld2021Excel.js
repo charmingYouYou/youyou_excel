@@ -34,7 +34,7 @@ class Ld2021Excel {
       ['f2020', 'f2021'],
     ]
     if (extra.keys) {
-      ldKeys.push(extra.keys.split(','))
+      ldKeys.unshift(extra.keys.split(','))
     }
     fileList.forEach(({ buffer, fileId }) => {
       // 每个文件
