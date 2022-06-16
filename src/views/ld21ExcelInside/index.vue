@@ -19,6 +19,12 @@
       <el-form-item label="额外表头名称">
         <el-input v-model="from.keys" placeholder="如: ld21"></el-input>
       </el-form-item>
+      <el-form-item label="地区ID表头名称">
+        <el-input
+          v-model="from.areaIdKey"
+          placeholder="默认: pac, 不区分大小写"
+        ></el-input>
+      </el-form-item>
     </el-form>
     <p style="color: red">
       {{ progress }}
@@ -75,6 +81,7 @@ let zipName = ''
 const progress = ref('当前处理进度: 0/0')
 const from = reactive({
   keys: '',
+  areaIdKey: '',
 })
 
 const addFile = () => {
@@ -109,7 +116,7 @@ const unZipFile = async (blob: Blob) => {
     })
     const fileList = Object.values(res.files).filter(
       value =>
-        value.name.endsWith('.dbf') &&
+        (value.name.endsWith('.dbf') || value.name.endsWith('.xlsx') ) && 
         !value.dir &&
         !value.name.includes('__MACOSX')
     )

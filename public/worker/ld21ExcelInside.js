@@ -10,7 +10,11 @@ class Ld21ExcelInside {
       info: {},
       title: 'dt2021',
     }
-    this.common2021Excel(fileList, ld21List, 0, extra)
+    this.extra = {
+      areaIdKey: 'pac',
+      ...extra,
+    }
+    this.common2021Excel(fileList, ld21List, 0, this.extra)
     self.postMessage({
       key: 'ld21ExcelInside',
       type: 'data',
@@ -21,36 +25,43 @@ class Ld21ExcelInside {
   }
 
   common2021Excel(fileList, resultInfo, index, extra) {
-    const ldKeys = [
-      ['ld21'],
-      ['ld2021'],
-      ['f2021'],
-    ]
+    const ldKeys = [['ld21'], ['ld2021'], ['f2021']]
     if (extra.keys) {
       ldKeys.push(extra.keys.split(','))
     }
     fileList.forEach(({ buffer, fileId }) => {
       // 每个文件
-      const workbook = self.XLSX.read(buffer, {
-        type: 'buffer',
-      })
+      const workbook = self.XLSX.read(
+        buffer,
+        {
+          type: 'buffer'
+        }
+      )
+      console.log(workbook.Sheets)
       workbook.SheetNames.forEach(sheetName => {
         const res = self.XLSX.utils.sheet_to_row_object_array(
           workbook.Sheets[sheetName]
         )
-        console.log(`xlsx to JSON:`, fileId, res.length)
+        console.log(`xlsx to JSON:`, fileId)
         if (res.length > 0) {
           res.forEach(item => {
-            const pacValue = this.getValue(item, 'pac')
+            const pacValue = this.getValue(item, this.extra.areaIdKey)
             if (!resultInfo.info[pacValue]) {
               resultInfo.info[pacValue] = {
-                pac: pacValue
+                pac: pacValue,
               }
             }
             const curKey = ldKeys.find(keys =>
               Object.keys(item).some(k => keys.includes(k.toLowerCase()))
             )
-            curKey && this.formatLdInfo(item, curKey[index], resultInfo, resultInfo.info[pacValue], fileId)
+            curKey &&
+              this.formatLdInfo(
+                item,
+                curKey[index],
+                resultInfo,
+                resultInfo.info[pacValue],
+                fileId
+              )
           })
         }
       })
@@ -61,14 +72,23 @@ class Ld21ExcelInside {
       data: `当前处理进度: 100%`,
     })
     console.log(`当前处理进度: 100%`)
-    resultInfo.info = Object.values(resultInfo.info).sort((a, b) => a.pac - b.pac)
+    resultInfo.info = Object.values(resultInfo.info).sort(
+      (a, b) => a.pac - b.pac
+    )
     return resultInfo
   }
 
   getValue(data, key) {
-    return data[key] || data[key.toLowerCase()] || data[key.toUpperCase()] || data[key.replace(/^\S/, function (s) {
-      return s.toUpperCase()
-    })]
+    return (
+      data[key] ||
+      data[key.toLowerCase()] ||
+      data[key.toUpperCase()] ||
+      data[
+      key.replace(/^\S/, function (s) {
+        return s.toUpperCase()
+      })
+      ]
+    )
   }
 
   formatLdInfo(data, sheetKey, container, obj, fileId) {

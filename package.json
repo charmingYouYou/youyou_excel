@@ -9,7 +9,6 @@
     "release": "npm run build && npm run upload"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
     "element-plus": "^1.1.0-beta.18",
     "iconv-lite": "^0.6.3",
     "jszip": "^3.7.1",
