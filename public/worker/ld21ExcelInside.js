@@ -5,6 +5,11 @@ class Ld21ExcelInside {
   ]
 
   async init(fileList, extra) {
+    const ld20List = {
+      keys: this.defaultKeys,
+      info: {},
+      title: 'dt2020',
+    }
     const ld21List = {
       keys: this.defaultKeys,
       info: {},
@@ -14,20 +19,26 @@ class Ld21ExcelInside {
       areaIdKey: 'pac',
       ...extra,
     }
+    this.common2021Excel(fileList, ld20List, 0, this.extra)
     this.common2021Excel(fileList, ld21List, 0, this.extra)
     self.postMessage({
       key: 'ld21ExcelInside',
       type: 'data',
       data: {
+        ld20List,
         ld21List,
       },
     })
   }
 
   common2021Excel(fileList, resultInfo, index, extra) {
-    const ldKeys = [['ld21'], ['ld2021'], ['f2021']]
+    const ldKeys = [
+      ['ld20', 'ld21'],
+      ['ld2020', 'ld2021'],
+      ['f2020', 'f2021'],
+    ]
     if (extra.keys) {
-      ldKeys.push(extra.keys.split(','))
+      ldKeys.unshift(extra.keys.split(','))
     }
     fileList.forEach(({ buffer, fileId }) => {
       // 每个文件

@@ -154,7 +154,7 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
       if (type === 'message') {
         progress.value = data
       } else if (type === 'data') {
-        tableResult.value = [data.ld21List]
+        tableResult.value = Object.values(data)
         console.log(data, '----------')
         worker.terminate()
       }
