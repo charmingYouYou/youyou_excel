@@ -16,7 +16,7 @@ echo > .nojekyll
 # echo 'www.example.com' > CNAME
 
 git init
-git checkout -B master
+git checkout -B main
 git add -A
 git commit -m 'deploy'
 
@@ -24,6 +24,6 @@ git commit -m 'deploy'
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git main
 
 # 如果你要部署在 https://<USERNAME>.github.io/<REPO>
-git push -f git@github.com:charmingYouYou/youyou_excel.git main:gh-pages
+git push -f https://github.com/charmingYouYou/youyou_excel.git main:gh-pages
 
 cd -
