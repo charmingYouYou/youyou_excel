@@ -17,6 +17,9 @@ jobs:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
+    env:
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
@@ -24,5 +27,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
-    - run: yarn
-    - run: sh deploy.sh
+    - name: Git Config
+      run: |
+        git config --global user.email charmingYouYou@github.com
+        git config --global user.name charmingYouYou
+    - name: 安装依赖
+      run: yarn
+    - name: 编译构建
+      run: sh deploy.sh
