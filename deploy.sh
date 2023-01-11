@@ -25,6 +25,6 @@ git commit -m 'deploy'
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git main
 
 # 如果你要部署在 https://<USERNAME>.github.io/<REPO>
-git push -f https://charmingYouYou:${ACCESS_TOKEN}@github.com:charmingYouYou/youyou_excel.git main:gh-pages
+git push -f https://charmingYouYou:${ACCESS_TOKEN}@github.com/charmingYouYou/youyou_excel.git main:gh-pages
 
 cd -
