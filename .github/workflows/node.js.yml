@@ -28,7 +28,6 @@ jobs:
       run: |
         git config --global user.email charmingYouYou@github.com
         git config --global user.name charmingYouYou
-        git remote add origin https://${{secrets.ACCESS_TOKEN}}@github.com/charmingYouYou/youyou_excel.git
     - name: 安装依赖
       run: yarn
     - name: 编译构建
