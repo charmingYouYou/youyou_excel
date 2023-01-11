@@ -16,9 +16,6 @@ jobs:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    env:
-      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     steps:
     - uses: actions/checkout@v3
@@ -31,6 +28,7 @@ jobs:
       run: |
         git config --global user.email charmingYouYou@github.com
         git config --global user.name charmingYouYou
+        git remote add origin https://${{secrets.ACCESS_TOKEN}}@github.com/charmingYouYou/youyou_excel.git
     - name: 安装依赖
       run: yarn
     - name: 编译构建
