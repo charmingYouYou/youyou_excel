@@ -16,6 +16,7 @@ echo > .nojekyll
 # echo 'www.example.com' > CNAME
 
 git init
+git remote add origin https://${ACCESS_TOKEN}@github.com/charmingYouYou/youyou_excel.git
 git checkout -B main
 git add -A
 git commit -m 'deploy'
