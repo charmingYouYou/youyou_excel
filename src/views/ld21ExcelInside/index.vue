@@ -139,7 +139,7 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
       return { buffer, fileId }
     })
   )
-  const worker = new Worker('/worker.js')
+  const worker = new Worker(`/${import.meta.env.BASE_URL}/worker.js`)
   worker.postMessage({
     key: 'ld21ExcelInside',
     type: 'data',
