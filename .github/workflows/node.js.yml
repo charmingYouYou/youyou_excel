@@ -32,6 +32,6 @@ jobs:
         git config --global user.email charmingYouYou@github.com
         git config --global user.name charmingYouYou
     - name: 安装依赖
-      run: yarn
+      run: yarn --registry https://registry.npm.taobao.org
     - name: 编译构建
       run: sh deploy.sh
