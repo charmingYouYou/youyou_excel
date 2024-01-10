@@ -1,5 +1,5 @@
 class Ld2020Excel {
-  init() {
+  init(data) {
     const LD2020List = []
     const areaJSON = []
     data.forEach(({ buffer, fileId }) => {
