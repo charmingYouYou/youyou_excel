@@ -16,11 +16,11 @@ class Ld2020Excel {
         console.log(`xlsx to JSON:`, res.length)
         if (res.length > 0) {
           res.forEach(item => {
-            if (!LD2020List.includes(String(item['LD2020']))) {
-              console.log(item['LD2020'], fileId)
-              LD2020List.push(String(item['LD2020']))
+            if (!LD2020List.includes(String(item['ld2023']))) {
+              console.log(item['ld2023'], fileId)
+              LD2020List.push(String(item['ld2023']))
             }
-            obj[item['LD2020']] = item.SHAPE_AREA || item.AREA
+            obj[item['ld2023']] = item.SHAPE_AREA || item.AREA
           })
         } else {
           obj.areaLength = 0
