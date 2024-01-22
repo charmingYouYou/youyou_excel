@@ -1,5 +1,11 @@
 <template>
   <div class="bg">
+    <el-alert
+      title="功能介绍"
+      type="info"
+      description="解析文件区域id, 并自定义表头名称, 根据改名称对area进行求和计算"
+      show-icon
+    />
     <el-upload
       class="upload-demo"
       drag
@@ -15,6 +21,11 @@
         <div class="el-upload__tip">只能上传{{ acceptArr.join(',') }}文件</div>
       </template>
     </el-upload>
+    <el-form ref="formRef" :model="from">
+      <el-form-item label="额外表头名称">
+        <el-input v-model="from.keys" placeholder="如: ld2023"></el-input>
+      </el-form-item>
+    </el-form>
     <p style="color: red">
       压缩包共计{{ tableResult.length }}个文件, {{ progress }}
     </p>
@@ -45,14 +56,16 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from '@vue/runtime-core'
+import { onMounted, ref, reactive } from '@vue/runtime-core'
 import JSZip from 'jszip'
 import XLSX from 'xlsx'
-import iconv from 'iconv-lite'
 import { getFileName } from '@/utils'
 import { ElMessage } from 'element-plus'
 
 const acceptArr = ['application/zip', 'application/x-zip-compressed']
+const from = reactive({
+  keys: '',
+})
 const tableResult = ref<any[]>([])
 const LD2020List = ref<string[]>([])
 let zipName = ''
@@ -84,11 +97,15 @@ const unZipFile = async (blob: Blob) => {
     const res = await JSZip.loadAsync(blob, {
       // @ts-ignore
       decodeFileName: (bytes: Buffer) => {
-        return iconv.decode(bytes, 'gbk')
+        const decoder = new TextDecoder('gbk')
+        return decoder.decode(bytes)
       },
     })
     const fileList = Object.values(res.files).filter(
-      value => !(value.name.includes('__MACOSX') || value.dir)
+      value =>
+        (value.name.endsWith('.dbf') || value.name.endsWith('.xlsx')) &&
+        !value.dir &&
+        !value.name.includes('__MACOSX')
     )
     fileProcess(fileList)
   } catch (error) {
@@ -114,6 +131,9 @@ const fileProcess = async (fileList: JSZip.JSZipObject[]) => {
     key: 'ld2020Excel',
     type: 'data',
     data: bufferList,
+    extra: {
+      ...from,
+    },
   })
   worker.addEventListener('message', e => {
     const { key, type, data } = e.data
@@ -146,5 +166,13 @@ onMounted(() => {})
 <style lang="scss" scoped>
 .el-main * {
   margin: 20px;
+}
+
+.el-form * {
+  margin: 0;
+
+  .el-input {
+    width: 50%;
+  }
 }
 </style>

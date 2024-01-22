@@ -12,7 +12,7 @@ const routes = [
       {
         path: 'ld2020Excel',
         meta: {
-          name: 'Ld2020 Excel处理',
+          name: 'Ld202X Excel处理',
         },
         component: () => import('@/views/ld2020Excel/index.vue'),
       },

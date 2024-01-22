@@ -1,5 +1,5 @@
 class Ld2020Excel {
-  init(data) {
+  init(data, extra) {
     const LD2020List = []
     const areaJSON = []
     data.forEach(({ buffer, fileId }) => {
@@ -16,11 +16,12 @@ class Ld2020Excel {
         console.log(`xlsx to JSON:`, res.length)
         if (res.length > 0) {
           res.forEach(item => {
-            if (!LD2020List.includes(String(item['ld2023']))) {
-              console.log(item['ld2023'], fileId)
-              LD2020List.push(String(item['ld2023']))
+            if (!LD2020List.includes(String(item[extra.keys]))) {
+              console.log(item[extra.keys], fileId)
+              LD2020List.push(String(item[extra.keys]))
             }
-            obj[item['ld2023']] = item.SHAPE_AREA || item.AREA
+            const areaKey = this.findAreaKey(item)
+            obj[item[extra.keys]] = item[areaKey]
           })
         } else {
           obj.areaLength = 0
@@ -44,6 +45,23 @@ class Ld2020Excel {
         areaJSON,
       },
     })
+  }
+
+  findAreaKey(data) {
+    let areaKey = ''
+    areaKey = Object.keys(data).find(key => {
+      return key.toLowerCase() === 'area'
+    })
+    if (!areaKey) {
+      areaKey = Object.keys(data).find(key => {
+        return key.toLowerCase().includes('area')
+      })
+    }
+    if (areaKey) {
+      return areaKey
+    } else {
+      throw Error('找不到areaKey')
+    }
   }
 }
 

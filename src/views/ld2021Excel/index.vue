@@ -70,7 +70,6 @@
 import { onMounted, ref, reactive } from '@vue/runtime-core'
 import JSZip from 'jszip'
 import XLSX from 'xlsx'
-import iconv from 'iconv-lite'
 import { getFileName } from '@/utils'
 import { ElMessage } from 'element-plus'
 
@@ -110,7 +109,8 @@ const unZipFile = async (blob: Blob) => {
     const res = await JSZip.loadAsync(blob, {
       // @ts-ignore
       decodeFileName: (bytes: Buffer) => {
-        return iconv.decode(bytes, 'gbk')
+        const decoder = new TextDecoder("gbk");
+        return decoder.decode(bytes)
       },
     })
     const fileList = Object.values(res.files).filter(
