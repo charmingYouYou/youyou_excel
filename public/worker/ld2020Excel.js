@@ -1,6 +1,11 @@
 class Ld2020Excel {
+  defaultKeys = [
+    21, 22, 23, 24, 31, 32, 33, 41, 42, 43, 44, 45, 46, 47, 51, 52, 53, 61, 62,
+    63, 64, 65, 66, 67, 111, 112, 113, 114, 121, 122, 123, 124,
+  ]
+
   init(data, extra) {
-    const LD2020List = []
+    const LD2020List = this.defaultKeys;
     const areaJSON = []
     data.forEach(({ buffer, fileId }) => {
       const workbook = self.XLSX.read(buffer, {
@@ -16,9 +21,8 @@ class Ld2020Excel {
         console.log(`xlsx to JSON:`, res.length)
         if (res.length > 0) {
           res.forEach(item => {
-            if (!LD2020List.includes(String(item[extra.keys]))) {
-              console.log(item[extra.keys], fileId)
-              LD2020List.push(String(item[extra.keys]))
+            if (!LD2020List.includes(item[extra.keys])) {
+              LD2020List.push(item[extra.keys])
             }
             const areaKey = this.findAreaKey(item)
             obj[item[extra.keys]] = item[areaKey]

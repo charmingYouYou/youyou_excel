@@ -48,6 +48,9 @@
         :label="item"
         align="center"
       >
+        <template #default="scope">
+          {{ Number(scope.row[item] || 0).toFixed(3) }}
+        </template>
       </el-table-column>
       <!-- <el-table-column prop="areaSum" label="区域area和" align="center">
       </el-table-column> -->
