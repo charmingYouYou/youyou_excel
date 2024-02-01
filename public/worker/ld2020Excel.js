@@ -21,11 +21,17 @@ class Ld2020Excel {
         console.log(`xlsx to JSON:`, res.length)
         if (res.length > 0) {
           res.forEach(item => {
-            if (!LD2020List.includes(item[extra.keys])) {
-              LD2020List.push(item[extra.keys])
+            const ldKey = item[extra.keys];
+            if (!LD2020List.includes(ldKey)) {
+              LD2020List.push(ldKey)
+            }
+            if (!obj[ldKey]) {
+              obj[ldKey] = 0
             }
             const areaKey = this.findAreaKey(item)
-            obj[item[extra.keys]] = item[areaKey]
+            if (areaKey) {
+              obj[ldKey] += Number(item[areaKey])
+            }
           })
         } else {
           obj.areaLength = 0
